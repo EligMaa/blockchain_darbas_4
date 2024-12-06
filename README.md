@@ -18,6 +18,9 @@ tinklu.
 * Išmaniosios sutarties testavimui naudokite ir vieną iš viešųjų Ethereum
 testinių tinklų (angl. testnet), pvz., Goerli.
 
+## Instaliavimas
+Node.js ir Truffle instaliavausi pagal šią [nuorodą) (https://archive.trufflesuite.com/docs/truffle/how-to/install/#requirements). 
+ganachi: https://github.com/trufflesuite/ganache-ui/releases/tag/v2.7.1#user-content-2.7.1-How-to-Upgrade
 ## 1. Verslo modelio logikos aprašymas
 
 
