@@ -1,0 +1,65 @@
+body {
+  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+}
+
+#header {
+  background-color: #f8f9fa;
+  border-bottom: 3px solid #007bff;
+}
+
+#header .navbar-brand {
+  color: #007bff;
+  font-weight: bold;
+}
+
+#bilietai {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  display: grid;
+}
+
+.bilietas {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: 0 4px 8px #0000001a;
+}
+
+.bilietas:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px #0003;
+}
+
+.bilietas img {
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.bilietas .card-title {
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.bilietas .card-text {
+  color: #555;
+  font-size: 18px;
+}
+
+.bilietas .btn {
+  color: #fff;
+  cursor: pointer;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  transition: background-color .3s;
+}
+
+.bilietas .btn:hover {
+  background-color: #0056b3;
+}
+/*# sourceMappingURL=index.1b412988.css.map */
