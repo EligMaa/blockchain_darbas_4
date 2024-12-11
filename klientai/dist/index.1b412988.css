@@ -3,14 +3,28 @@ body {
   font-family: Arial, sans-serif;
 }
 
-#header {
+.navbar {
   background-color: #f8f9fa;
   border-bottom: 3px solid #007bff;
 }
 
-#header .navbar-brand {
+.navbar-brand {
   color: #007bff;
+  cursor: pointer;
   font-weight: bold;
+}
+
+#allTicketsNavbarBtn, #purchasedTicketsNavbarBtn {
+  color: #007bff;
+  cursor: pointer;
+  background-color: #dfeefa7a;
+  border: none;
+  font-size: large;
+  font-weight: bold;
+}
+
+#allTicketsNavbarBtn:hover, #purchasedTicketsNavbarBtn:hover {
+  background-color: #007bff1b;
 }
 
 #bilietai {
@@ -61,5 +75,12 @@ body {
 
 .bilietas .btn:hover {
   background-color: #0056b3;
+}
+
+.active-btn {
+  color: #007bff;
+  background-color: #e9f7fe;
+  border: 2px solid #007bff;
+  border-radius: 5px;
 }
 /*# sourceMappingURL=index.1b412988.css.map */

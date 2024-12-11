@@ -1,7 +1,7 @@
 import Web3 from 'web3';
 import configuration from '../build/contracts/Bilietai.json';
 import 'bootstrap/dist/css/bootstrap.css';
-// Image paths for each category
+// Vaizdų keliai kiekvienai kategorijai
 import conc from './conc.jpg';
 import spor from './spor.jpg';
 import teatr from './teatr.jpg';
@@ -12,6 +12,7 @@ const bilietuPav = {
   teatro: teatr,
 };
 
+// Funkcija, kuri sukuria elementą iš HTML eilutės
 const createElementFromString = (string) => {
   const el = document.createElement('div');
   el.innerHTML = string;
@@ -29,28 +30,28 @@ let account;
 
 const accountEl = document.getElementById('account');
 const bilietoEl = document.getElementById('bilietai');
-const VISI_BILIETAI = 10; // Assuming you have 20 tickets
+const VISI_BILIETAI = 10; // Nustatykite bendrą bilietų skaičių, pavyzdžiui, 10
 const tusciasAdresas = '0x0000000000000000000000000000000000000000';
 
-let allTickets = []; // Store all tickets here
+let allTickets = []; // Saugo visus bilietus
 
-// Function to handle purchasing tickets
+// Funkcija bilietų pirkimui
 const pirktiBilietus = async (bilietas) => {
   try {
     await contract.methods.pirktiBilietus(bilietas.id).send({ from: account, value: bilietas.kaina });
-    await atnaujintiBilieta(); // Update ticket list after purchase
+    await atnaujintiBilieta(); // Atnaujina bilietų sąrašą po pirkimo
   } catch (error) {
-    console.error('Error purchasing ticket:', error);
+    console.error('Klaida perkant bilietą:', error);
   }
 };
 
-// Function to show event details in a modal
+// Funkcija, kuri rodo renginio detales modale
 const showEventDetails = (bilietas) => {
   const modalTitleEl = document.getElementById('eventModalTitle');
   const modalBodyEl = document.getElementById('eventModalBody');
   const buyTicketBtn = document.getElementById('buyTicketBtn');
 
-  // Set modal content with additional information (date and location)
+  // Nustato modalų turinį su papildoma informacija (data, vieta)
   modalTitleEl.innerText = `${bilietas.kategorija} bilietas`;
   modalBodyEl.innerHTML = `
     <p><strong>Kategorija:</strong> ${bilietas.kategorija}</p>
@@ -60,19 +61,19 @@ const showEventDetails = (bilietas) => {
     <p><strong>Statusas:</strong> ${bilietas.kieno === tusciasAdresas ? 'Galimas' : 'Parduotas'}</p>
   `;
 
-  // Set purchase button action
+  // Nustato pirkimo mygtuko veiksmą
   buyTicketBtn.onclick = () => pirktiBilietus(bilietas);
 
-  // Show the modal
+  // Parodo modalą
   const modal = new bootstrap.Modal(document.getElementById('eventModal'));
   modal.show();
 };
 
-// Function to render tickets on the page
+// Funkcija, kuri renderuoja bilietus puslapyje
 const renderTickets = (tickets) => {
-  bilietoEl.innerHTML = ''; // Clear previous tickets
+  bilietoEl.innerHTML = ''; // Išvalo ankstesnius bilietus
   tickets
-    .filter((bilietas) => bilietas.kieno === tusciasAdresas) // Exclude sold tickets
+    .filter((bilietas) => bilietas.kieno === tusciasAdresas) // Išfiltruoja tik laisvus bilietus
     .forEach((bilietas) => {
       const bilietoCardEl = createElementFromString(
         `<div class="bilietas card" style="width: 18rem; cursor: pointer;">
@@ -83,52 +84,51 @@ const renderTickets = (tickets) => {
           </div>
         </div>`
       );
-      bilietoCardEl.onclick = () => showEventDetails(bilietas); // Show event details on click
+      bilietoCardEl.onclick = () => showEventDetails(bilietas); // Parodo renginio detales paspaudus
       bilietoEl.appendChild(bilietoCardEl);
     });
 };
 
 
-// Function to update the ticket list (fetching from the smart contract)
+// Funkcija atnaujinti bilietų sąrašą (gaunama iš išmaniojo kontrakto)
 const atnaujintiBilieta = async () => {
-  allTickets = []; // Clear previous tickets
+  allTickets = []; // Išvalo ankstesnius bilietus
   for (let i = 0; i < VISI_BILIETAI; i++) {
     const bilietas = await contract.methods.bilietai(i).call();
     bilietas.id = i;
-    bilietas.kategorija = getBilietoKategorija(i); // Assign category to the ticket
+    bilietas.kategorija = getBilietoKategorija(i); // Paskiria kategoriją bilietui
 
     const additionalInfo = getBilietoInfo(i);
     bilietas.data = additionalInfo.data;
     bilietas.vieta = additionalInfo.vieta;
 
-    bilietas.kieno = bilietas.kieno; // Ticket owner
-    bilietas.kaina = bilietas.kaina; // Ticket price
+    bilietas.kieno = bilietas.kieno; // Bilieto savininkas
+    bilietas.kaina = bilietas.kaina; // Bilieto kaina
 
-    allTickets.push(bilietas); // Store all tickets in the array
+    allTickets.push(bilietas); // Prideda bilietą į sąrašą
   }
-  renderTickets(allTickets); // Render all tickets initially
+  renderTickets(allTickets); // Renderuoja visus bilietus pradžioje
 };
 
-// Function to get the category of a ticket based on its ID
+// Funkcija gauti bilieto kategoriją pagal ID
 const getBilietoKategorija = (id) => {
   if (id % 3 === 0) return 'koncerto'; 
   if (id % 3 === 1) return 'sporto'; 
   return 'teatro'; 
 };
 
+// Funkcija gauti papildomą informaciją apie bilietą pagal ID
 const getBilietoInfo = (id) => {
   if (id % 3 === 0) {
-    return { data: '2024-12-15', vieta: 'Compensa salė' }; // Concert ticket info
+    return { data: '2024-12-15', vieta: 'Compensa salė' }; // Koncerto bilieto informacija
   }
   if (id % 3 === 1) {
-    return { data: '2025-01-20', vieta: 'Žalgirio arena' }; // Sport ticket info
+    return { data: '2025-01-20', vieta: 'Žalgirio arena' }; // Sporto bilieto informacija
   }
-  return { data: '2025-01-05', vieta: 'Keistuolių teatras' }; // Theater ticket info
+  return { data: '2025-01-05', vieta: 'Keistuolių teatras' }; // Teatro bilieto informacija
 };
 
-
-
-// MetaMask connection logic
+// MetaMask prisijungimo logika
 const connectMetaMask = async () => {
   try {
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -141,7 +141,7 @@ const connectMetaMask = async () => {
     console.log('MetaMask prijungta', account);
     console.log('Balansas:', balanceInEth, 'ETH');
 
-    await atnaujintiBilieta(); // Fetch and display tickets after connecting
+    await atnaujintiBilieta(); // Gauna ir rodo bilietus po prisijungimo
   } catch (error) {
     console.error('MetaMask prijungimas nepavyko:', error);
   }
@@ -154,7 +154,7 @@ if (window.ethereum) {
   });
 }
 
-// Filter tickets by category
+// Funkcija filtruoti bilietus pagal kategoriją
 const filterTickets = (category) => {
   const filteredTickets = allTickets.filter((ticket) => ticket.kategorija === category);
   renderTickets(filteredTickets);
@@ -165,52 +165,51 @@ document.getElementById('koncertoBtn').onclick = () => filterTickets('koncerto')
 document.getElementById('sportoBtn').onclick = () => filterTickets('sporto');
 document.getElementById('teatroBtn').onclick = () => filterTickets('teatro');
 
-// Function to toggle filter button visibility
+// Funkcija perjungti filtravimo mygtukų matomumą
 const toggleFilterButtons = (show) => {
   const filterButtons = document.getElementById('filterButtons');
   filterButtons.style.display = show ? 'block' : 'none';
 };
 
-// Show all tickets and filter buttons
+// Rodo visus bilietus ir filtravimo mygtukus
 document.getElementById('allTicketsNavbarBtn').onclick = () => {
-  toggleFilterButtons(true); // Show filter buttons
-  renderTickets(allTickets); // Show all tickets
+  toggleFilterButtons(true); // Rodo filtravimo mygtukus
+  renderTickets(allTickets); // Rodo visus bilietus
 
-  const titleEl = document.querySelector('h2'); // Assuming the title is an h2 element
+  const titleEl = document.querySelector('h2'); // Jei pavadinimas yra h2 elementas
   if (titleEl) {
     titleEl.textContent = 'Bilietų Pardavimas';
   }
 };
 
-
-// Show only purchased tickets and hide filter buttons
+// Rodyti tik įsigytus bilietus ir paslėpti filtravimo mygtukus
 document.getElementById('purchasedTicketsNavbarBtn').onclick = () => {
-  toggleFilterButtons(false); // Hide filter buttons
+  toggleFilterButtons(false); // Paslėpti filtravimo mygtukus
 
   const purchasedTickets = allTickets.filter(
     (ticket) => ticket.kieno.toLowerCase() === account.toLowerCase()
   );
   
-  // Render the purchased tickets
+  // Renderuoti įsigytus bilietus
   renderPurchasedTickets(purchasedTickets);
   
-  // Update the title from "Bilietų Pirkimas" to "Jūsų Bilietai"
-  const titleEl = document.querySelector('h2'); // Assuming the title is an h2 element
+  // Atnaujinti pavadinimą iš "Bilietų Pirkimas" į "Jūsų Bilietai"
+  const titleEl = document.querySelector('h2'); // Tikėtina, kad pavadinimas yra h2 elementas
   if (titleEl) {
     titleEl.textContent = 'Jūsų Bilietai';
   }
 };
 
+// Inicializuoti filtravimo mygtukų matomumą
+toggleFilterButtons(true); // Rodyti pagal nutylėjimą
 
-// Initial filter buttons visibility
-toggleFilterButtons(true); // Show by default
 
-
+// Funkcija renderuoti įsigytus bilietus
 const renderPurchasedTickets = (tickets) => {
-  bilietoEl.innerHTML = ''; // Clear previous tickets
+  bilietoEl.innerHTML = ''; // Išvalyti ankstesnius bilietus
 
   if (tickets.length === 0) {
-    bilietoEl.innerHTML = '<p>Jūs neturite įsigytų bilietų.</p>'; // Message if no tickets bought
+    bilietoEl.innerHTML = '<p>Jūs neturite įsigytų bilietų.</p>'; // Pranešimas, jei nėra įsigytų bilietų
   } else {
     tickets.forEach((bilietas) => {
       const bilietoCardEl = createElementFromString(
@@ -229,13 +228,13 @@ const renderPurchasedTickets = (tickets) => {
       const refundButton = bilietoCardEl.querySelector('.refund-button');
       refundButton.onclick = async () => {
         try {
-          // Call the smart contract function to refund the ticket
+          // Iškviečiame išmaniojo kontrakto funkciją bilieto grąžinimui
           await contract.methods.grazintiBilietas(bilietas.id).send({ from: account });
-          alert('Bilietas buvo sėkmingai grąžintas!'); // Show success message
-          await atnaujintiBilieta(); // Update tickets after refund
+          alert('Bilietas buvo sėkmingai grąžintas!'); // Rodyti sėkmės pranešimą
+          await atnaujintiBilieta(); // Atnaujinti bilietų sąrašą po grąžinimo
         } catch (error) {
-          console.error('Error refunding ticket:', error);
-          alert('Bilieto grąžinimas nepavyko.');
+          console.error('Klaida grąžinant bilietą:', error);
+          alert('Bilieto grąžinimas nepavyko.'); // Rodyti klaidos pranešimą
         }
       };
 
@@ -244,19 +243,20 @@ const renderPurchasedTickets = (tickets) => {
   }
 };
 
+// Tikriname, kuris puslapis yra atidarytas ir pritaikome aktyvią būseną mygtukams
 document.addEventListener("DOMContentLoaded", () => {
-  // Get the current URL path
+  // Gauti dabartinį URL kelią
   const currentPath = window.location.pathname;
 
-  // Select the buttons
+  // Pasirenkame mygtukus
   const bilietaiBtn = document.getElementById("allTicketsNavbarBtn");
   const manoBilietaiBtn = document.getElementById("purchasedTicketsNavbarBtn");
 
-  // Clear active state from both buttons
+  // Pašaliname aktyvią būseną iš abiejų mygtukų
   bilietaiBtn.classList.remove("active-btn");
   manoBilietaiBtn.classList.remove("active-btn");
 
-  // Apply active state based on the current path
+  // Taikome aktyvią būseną pagal dabartinį kelią
   if (currentPath.includes("bilietai")) {
     bilietaiBtn.classList.add("active-btn");
   } else if (currentPath.includes("mano-bilietai")) {
@@ -264,11 +264,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// Kai puslapis yra užkrautas, bandome prisijungti prie MetaMask
 window.addEventListener('load', async () => {
   if (typeof window.ethereum !== 'undefined') {
     console.log('MetaMask instaliuota!');
-    connectMetaMask(); // Connect on page load
+    connectMetaMask(); // Prisijungti puslapio užkrovimo metu
   } else {
-    console.log('Please install MetaMask!');
+    console.log('Prašome įdiegti MetaMask!');
   }
 });
+
