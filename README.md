@@ -181,17 +181,185 @@ truffle migrate
 ![image](https://github.com/user-attachments/assets/1819d5fc-c429-43eb-9645-daac32bffe5e)
 ![image](https://github.com/user-attachments/assets/06ae9b8d-7fbc-4690-975b-af3d3c4bef1e)
 <br>
-Tada sukūriau aplankalą ```kientai``` Front-End'ui ir pr terminalą suvedame ```npm init -f```. Ši komanda inicijuoja Node.js projektą, sukurdama package.json failą, jei jo dar nėra. Tai yra svarbus žingsnis, kuriant bet kokią Node.js arba frontend programą, nes package.json failas saugo visą svarbią informaciją apie projektą ir jo priklausomybes. Tada terminale paleidau ```npm install --save-dev parcel``` komandą, kuri įdiegia Parcel ir leidžia naudoti ```Web3``` biblioteką. Tuoment susikūriau index.js, index.html, stilius.css. ```npm run start``` vykdo skriptą, apibrėžtą package.json faile, kuris paleidžia svetainę.
+Tada sukūriau aplankalą ```klientai``` Front-End'ui ir į terminalą suvedžiau ```npm init -f```. Ši komanda inicijuoja Node.js projektą, sukurdama package.json failą, jei jo dar nėra. Tai yra svarbus žingsnis, kuriant bet kokią Node.js arba frontend programą, nes package.json failas saugo visą svarbią informaciją apie projektą ir jo priklausomybes. Tada terminale paleidau ```npm install --save-dev parcel``` komandą, kuri įdiegia Parcel ir leidžia naudoti ```Web3``` biblioteką. Tuoment susikūriau index.js, index.html, stilius.css. ```npm run start``` vykdo skriptą, apibrėžtą package.json faile, kuris paleidžia svetainę.
 ![image](https://github.com/user-attachments/assets/3e91b966-24a4-4f49-9b6a-e98e960dc777)<br>
+<br>
 Paspaudus ant norimo bilieto, parodoma informacija apie renginį ir mygtukas, kurį paspaudus galima nusipirti bilietą.
+<br>
 ![image](https://github.com/user-attachments/assets/dba0f810-c79d-4332-875b-15f1e9e298f9)<br>
-Jau nusipirktus bilietus galima pažiūrėti pspaudus ant ```Mano bilietai```. Taip pat jau nusipirktą bilietą galima grąžinti, jei renginys dar neįvykęs.
+<br>
+Jau nusipirktus bilietus galima pažiūrėti paspaudus ant ```Mano bilietai```. Taip pat jau nusipirktą bilietą galima grąžinti, jei renginys dar neįvykęs.<br>
 ![image](https://github.com/user-attachments/assets/4d93e33a-f491-43cc-b028-abcf8c40b427)<br>
 
+<br>
 
+## 3. Išmaniosios sutarties testavimas 
+#### Ethereum lokaliame tinkle
 
+Testo faile ```testukas.js``` yra naudojama Truffle testavimo aplinka, skirta tikrinti Solidity išmaniąją sutartį ```Bilietai```. Šio failo paskirtis – užtikrinti, kad išmanioji sutartis veikia pagal numatytą logiką, kaip apibrėžta jos kode.<br><br>
+Bilieto informacijos pradinė būsena:
+* Ar bilieto savininkas pradžioje yra „0x0“ (t. y., niekas nėra bilieto savininkas).
+* Ar bilieto kaina ir kita informacija atitinka numatytą pradinę būseną.
 
+Bilieto pirkimo logika:
+* Ar pirkėjas gali nupirkti bilietą, jei pateikiami tinkami parametrai.
+* Ar sistema priima tiksliai reikalingą sumą (ETH), skirtą bilieto kainai padengti.
 
+Bilieto savininko pakeitimas po pirkimo:
+* Ar bilieto savininko adresas (laukas kieno) buvo sėkmingai atnaujintas į pirkėjo adresą.
+
+Bilieto kaina nepasikeitė:
+* Ar bilieto savybės (pvz., kaina) nepasikeičia be pagrindo.
+
+Sandorio sėkmė naudojant konkretų adresą:
+* Ar galima naudoti skirtingus sąskaitų adresus iš „Ganache“ ir atlikti sėkmingus sandorius.
+* Ar pirkimas nepavyksta, jei pirkėjas neturi pakankamai lėšų.
+<br><br>
+Tam, kad paleisti testavimą į terminalą reikia suvesti: ```truffle test test/testukas.js```.
+<br>
+<details>
+<summary>testukas.js</summary>
+<br>
+  
+```
+const Bilietai = artifacts.require('Bilietai');
+const assert = require('assert');
+
+contract('Bilietai', (accounts) => {
+  const savininkas = accounts[0]; // Contract owner
+  const pirkejas = accounts[1];  // Buyer
+  const kitasPirkejas = accounts[2]; // Another buyer
+  const Bilieto_ID = 0;
+  const Kitas_Bilieto_ID = 1;
+
+  let instance;
+
+  before(async () => {
+    instance = await Bilietai.deployed();
+  });
+
+  it('Savininkas yra nustatytas tinkamai', async () => {
+    const sutartiesSavininkas = await instance.owner();
+    assert.equal(sutartiesSavininkas, savininkas, 'Savininkas turi būti priskirtas tinkamai');
+  });
+
+  it('Leidžia pirkti bilietą su tinkama suma', async () => {
+    const bilietas = await instance.bilietai(Bilieto_ID);
+    await instance.pirktiBilietus(Bilieto_ID, {
+      from: pirkejas,
+      value: bilietas.kaina,
+    });
+    const atnaujintiBilieta = await instance.bilietai(Bilieto_ID);
+    assert.equal(
+      atnaujintiBilieta.kieno,
+      pirkejas,
+      'Pirkejas turi būti bilieto savininkas'
+    );
+  });
+
+  it('Neleidžia pirkti jau parduoto bilieto', async () => {
+    try {
+      await instance.pirktiBilietus(Bilieto_ID, {
+        from: kitasPirkejas,
+        value: web3.utils.toWei('1', 'ether'),
+      });
+      assert.fail('Tikimasi, kad nepavyks pirkti jau parduoto bilieto');
+    } catch (error) {
+      assert(error.message.includes('Bilietas jau parduotas'), 'Gautas netinkamas klaidos pranešimas');
+    }
+  });
+
+  it('Grąžina bilietą ir atlaisvina jį pirkimui', async () => {
+    const bilietas = await instance.bilietai(Bilieto_ID);
+    await instance.grazintiBilietas(Bilieto_ID, { from: pirkejas });
+    const atnaujintiBilieta = await instance.bilietai(Bilieto_ID);
+    assert.equal(
+      atnaujintiBilieta.kieno,
+      '0x0000000000000000000000000000000000000000',
+      'Bilietas turi būti atlaisvintas'
+    );
+  });
+
+  it('Leidžia pirkti atlaisvintą bilietą', async () => {
+    const bilietas = await instance.bilietai(Bilieto_ID);
+    await instance.pirktiBilietus(Bilieto_ID, {
+      from: kitasPirkejas,
+      value: bilietas.kaina,
+    });
+    const atnaujintiBilieta = await instance.bilietai(Bilieto_ID);
+    assert.equal(
+      atnaujintiBilieta.kieno,
+      kitasPirkejas,
+      'Kitas pirkejas turi būti bilieto savininkas'
+    );
+  });
+
+  it('Tinkamai taiko ankstyvo pirkimo nuolaidą', async () => {
+    const bilietas = await instance.bilietai(Kitas_Bilieto_ID);
+    const pradineKaina = bilietas.kaina;
+    const expectedPrice = web3.utils.toWei('0.5', 'ether');
+
+    // Pirkti bilietą su nuolaida
+    await instance.pirktiBilietus(Kitas_Bilieto_ID, {
+      from: pirkejas,
+      value: expectedPrice,
+    });
+    const atnaujintiBilieta = await instance.bilietai(Kitas_Bilieto_ID);
+
+    assert.equal(
+      atnaujintiBilieta.moketaKaina,
+      expectedPrice,
+      'Nuolaida turi būti tinkamai taikoma'
+    );
+  });
+
+  it('Neleidžia pirkti bilieto už mažesnę nei reikalingą sumą', async () => {
+    try {
+      await instance.pirktiBilietus(2, {
+        from: pirkejas,
+        value: web3.utils.toWei('0.1', 'ether'),
+      });
+      assert.fail('Tikimasi, kad nepavyks pirkti bilieto už mažesnę sumą');
+    } catch (error) {
+      assert(error.message.includes('Nepakanka lesu bilietui isigyti'), 'Gautas netinkamas klaidos pranešimas');
+    }
+  });
+
+  it('Tikrina pradinį bilieto būseną', async () => {
+    const naujasBilietas = await instance.bilietai(3);
+    assert.equal(
+      naujasBilietas.kieno,
+      '0x0000000000000000000000000000000000000000',
+      'Pradžioje bilietas turi būti laisvas'
+    );
+    assert.equal(
+      naujasBilietas.kaina,
+      web3.utils.toWei('1', 'ether'),
+      'Pradinė bilieto kaina turi būti 1 ETH'
+    );
+  });
+
+  it('Neleidžia grąžinti bilieto, kuris nepriklauso vartotojui', async () => {
+    try {
+      await instance.grazintiBilietas(Bilieto_ID, { from: pirkejas });
+      assert.fail('Tikimasi, kad nepavyks grąžinti bilieto, kuris nepriklauso vartotojui');
+    } catch (error) {
+      assert(error.message.includes('Jus nesate sio bilieto savininkas'), 'Gautas netinkamas klaidos pranešimas');
+    }
+  });
+});
+
+```
+</details>
+
+![image](https://github.com/user-attachments/assets/0b4b5337-2e0d-4f0d-ab07-b8bb8347bb26)
+
+<br><br>
+#### Ethereum testiniame tinkle
+Testavimas Ethereum testiniame tinkle nepavyko, nes Goerli nebepalaiko, o bandant su Sepolia reikia jau turėti ETH jei norima jų gauti daugiau, tad reikėtų juos pirkti.<br>
+![image](https://github.com/user-attachments/assets/3421c645-d4b2-4291-b1ec-8c222c03db30)<br>
+![image](https://github.com/user-attachments/assets/e25a86c1-d9a1-4623-889e-1258b63250f8)
+![image](https://github.com/user-attachments/assets/10fe7afb-8583-4624-bd4b-ac91c2f43428)
 
 
 
