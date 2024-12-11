@@ -23,6 +23,7 @@ const CONTRACT_ABI = configuration.abi;
 
 const web3 = new Web3(window.ethereum || 'http://127.0.0.1:7545');
 const contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
+console.log(contract.methods);
 
 let account;
 
@@ -125,6 +126,8 @@ const getBilietoInfo = (id) => {
   return { data: '2025-01-05', vieta: 'Keistuolių teatras' }; // Theater ticket info
 };
 
+
+
 // MetaMask connection logic
 const connectMetaMask = async () => {
   try {
@@ -179,6 +182,7 @@ document.getElementById('allTicketsNavbarBtn').onclick = () => {
   }
 };
 
+
 // Show only purchased tickets and hide filter buttons
 document.getElementById('purchasedTicketsNavbarBtn').onclick = () => {
   toggleFilterButtons(false); // Hide filter buttons
@@ -204,6 +208,7 @@ toggleFilterButtons(true); // Show by default
 
 const renderPurchasedTickets = (tickets) => {
   bilietoEl.innerHTML = ''; // Clear previous tickets
+
   if (tickets.length === 0) {
     bilietoEl.innerHTML = '<p>Jūs neturite įsigytų bilietų.</p>'; // Message if no tickets bought
   } else {
@@ -216,13 +221,48 @@ const renderPurchasedTickets = (tickets) => {
             <p class="card-text">Data: ${bilietas.data}</p>
             <p class="card-text">Vieta: ${bilietas.vieta}</p>
             <p class="card-text">Kaina: ${Number(bilietas.kaina) / 1e18} ETH</p>
+            <button class="btn btn-danger refund-button">Grąžinti Bilietą</button>
           </div>
         </div>`
       );
+
+      const refundButton = bilietoCardEl.querySelector('.refund-button');
+      refundButton.onclick = async () => {
+        try {
+          // Call the smart contract function to refund the ticket
+          await contract.methods.grazintiBilietas(bilietas.id).send({ from: account });
+          alert('Bilietas buvo sėkmingai grąžintas!'); // Show success message
+          await atnaujintiBilieta(); // Update tickets after refund
+        } catch (error) {
+          console.error('Error refunding ticket:', error);
+          alert('Bilieto grąžinimas nepavyko.');
+        }
+      };
+
       bilietoEl.appendChild(bilietoCardEl);
     });
   }
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Get the current URL path
+  const currentPath = window.location.pathname;
+
+  // Select the buttons
+  const bilietaiBtn = document.getElementById("allTicketsNavbarBtn");
+  const manoBilietaiBtn = document.getElementById("purchasedTicketsNavbarBtn");
+
+  // Clear active state from both buttons
+  bilietaiBtn.classList.remove("active-btn");
+  manoBilietaiBtn.classList.remove("active-btn");
+
+  // Apply active state based on the current path
+  if (currentPath.includes("bilietai")) {
+    bilietaiBtn.classList.add("active-btn");
+  } else if (currentPath.includes("mano-bilietai")) {
+    manoBilietaiBtn.classList.add("active-btn");
+  }
+});
 
 window.addEventListener('load', async () => {
   if (typeof window.ethereum !== 'undefined') {

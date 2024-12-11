@@ -3,18 +3,27 @@ body {
   font-family: 'Arial', sans-serif;
 }
 
-/* Add a background color or border-bottom to the navbar */
-#header {
-  border-bottom: 3px solid #007bff;  /* Blue line below the navbar */
-  background-color: #f8f9fa;          /* Light background for navbar */
+.navbar {
+  border-bottom: 3px solid #007bff; /* Blue underline for navbar */
+  background-color: #f8f9fa;
 }
-
-/* Optionally, style the navbar brand */
-#header .navbar-brand {
+.navbar-brand {
   font-weight: bold;
-  color: #007bff;  /* Make the brand text color match the border */
+  color: #007bff;
+  cursor: pointer;
 }
 
+#allTicketsNavbarBtn, #purchasedTicketsNavbarBtn {
+  color: #007bff;
+  cursor: pointer;
+  background-color: rgba(223, 238, 250, 0.479);
+  border: none;
+  font-weight: bold;
+  font-size: large;
+}
+#allTicketsNavbarBtn:hover, #purchasedTicketsNavbarBtn:hover {
+  background-color: #007bff1b;
+}
 
 #bilietai {
   display: grid;
@@ -66,3 +75,15 @@ body {
   background-color: #0056b3;
 
 }
+
+.active-btn {
+  border: 2px solid #007bff; /* Blue border */
+  border-radius: 5px;
+  background-color: #e9f7fe; /* Light blue background */
+  color: #007bff; /* Blue text */
+}
+
+
+
+
+
