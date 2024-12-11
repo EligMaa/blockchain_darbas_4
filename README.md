@@ -179,8 +179,18 @@ truffle compile
 truffle migrate
 ```
 ![image](https://github.com/user-attachments/assets/1819d5fc-c429-43eb-9645-daac32bffe5e)
-![image](https://github.com/user-attachments/assets/e049f76a-01bf-4777-a467-e18e5450f118)
+![image](https://github.com/user-attachments/assets/06ae9b8d-7fbc-4690-975b-af3d3c4bef1e)
 <br>
+Tada sukūriau aplankalą ```kientai``` Front-End'ui ir pr terminalą suvedame ```npm init -f```. Ši komanda inicijuoja Node.js projektą, sukurdama package.json failą, jei jo dar nėra. Tai yra svarbus žingsnis, kuriant bet kokią Node.js arba frontend programą, nes package.json failas saugo visą svarbią informaciją apie projektą ir jo priklausomybes. Tada terminale paleidau ```npm install --save-dev parcel``` komandą, kuri įdiegia Parcel ir leidžia naudoti ```Web3``` biblioteką. Tuoment susikūriau index.js, index.html, stilius.css. ```npm run start``` vykdo skriptą, apibrėžtą package.json faile, kuris paleidžia svetainę.
+![image](https://github.com/user-attachments/assets/3e91b966-24a4-4f49-9b6a-e98e960dc777)<br>
+Paspaudus ant norimo bilieto, parodoma informacija apie renginį ir mygtukas, kurį paspaudus galima nusipirti bilietą.
+![image](https://github.com/user-attachments/assets/dba0f810-c79d-4332-875b-15f1e9e298f9)<br>
+Jau nusipirktus bilietus galima pažiūrėti pspaudus ant ```Mano bilietai```. Taip pat jau nusipirktą bilietą galima grąžinti, jei renginys dar neįvykęs.
+![image](https://github.com/user-attachments/assets/4d93e33a-f491-43cc-b028-abcf8c40b427)<br>
+
+
+
+
 
 
 
