@@ -24,6 +24,24 @@ testinių tinklų (angl. testnet), pvz., Goerli.
 * Solidity (v0.8.11) kompiliatorius.
 * MetaMask susikurti pagal [nuorodą](https://nftnow.com/guides/how-to-set-up-metamask-wallet/).
 ## 1. Verslo modelio logikos aprašymas
+Šios išmaniosios sutarties pagrindinė verslo logika sukasi apie bilietų pardavimą ir grąžinimą per Ethereum blockchain. Ji įgyvendina bilietų pardavimo platformą, kurioje vartotojai gali įsigyti bilietus ir susigrąžinti pinigus, jei nusprendžia bilietą grąžinti prieš renginį. Ši verslo logika remiasi šiais pagrindiniais aspektais:
+#### 1. Bilietų pardavimas:
+* Išmanioji sutartis valdo iš anksto nustatytą bilietų skaičių, kurių kiekvienas turi bazinę kainą (1 ETH).
+* Bilietai priskirti trim kategorijoms: koncertai, sporto renginiai ir spektakliai, su tam tikrais renginio datos ir vietos duomenimis.
+* Vartotojas gali įsigyti bilietą, siųsdamas reikiamą sumą į išmaniąją sutartį. Bilieto savininkas yra registruojamas pagal jo Ethereum adresą.
+
+#### 2. Bilieto grąžinimas:
+* Vartotojai gali grąžinti bilietą, jei renginys dar neprasidėjo.
+* Pirkėjui grąžinama suma, kuri buvo sumokėta už bilietą (fiksuojama bilieto kaina pirkimo metu). Tai suteikia vartotojui lankstumą.
+* Grąžintas bilietas tampa vėl prieinamas kitiems vartotojams.
+#### 3. Sutarties valdytojo pajamos:
+* Sutarties valdytojas (platformos savininkas) gali nustatyti komisinį mokestį (5 %) už bilietų perpardavimą, jei šis funkcionalumas būtų pridėtas ateityje. Tai užtikrintų platformos pelningumą iš bilietų perpardavimų.
+#### 4. Skaidrumas ir decentralizacija:
+* Visa bilietų pirkimo ir grąžinimo veikla yra atliekama blockchain tinkle, kas užtikrina skaidrumą, decentralizuotą valdymą ir neabejotiną savininkystę.
+* Tai suteikia patikimumą tiek vartotojams, tiek platformai, nes nėra centralizuoto tarpininko, kuris galėtų kontroliuoti ar manipuliuoti bilietų pardavimo procesu.
+#### Verslo modelio privalumai
+* Grąžinimo sistema leidžia vartotojams jaustis saugiai dėl savo investicijų, o platforma efektyviai valdo grąžinimus.
+* Skaidrus decentralizavimas suteikia didesnį pasitikėjimą tiek bilietų pirkėjams, tiek platformai.
 ## 2. Išmanioji sutartis Solidyti kalba
 Atidarius komandinę eilutę reikia sukurti aplankalą, kuriame bus talpinami visi reikalingi išmaniosios sutarties failai.<br>
 ```mkdir laboras```<br>
