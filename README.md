@@ -226,23 +226,26 @@ const Bilietai = artifacts.require('Bilietai');
 const assert = require('assert');
 
 contract('Bilietai', (accounts) => {
-  const savininkas = accounts[0]; // Contract owner
-  const pirkejas = accounts[1];  // Buyer
-  const kitasPirkejas = accounts[2]; // Another buyer
-  const Bilieto_ID = 0;
-  const Kitas_Bilieto_ID = 1;
+  const savininkas = accounts[0]; // Sutarties savininkas
+  const pirkejas = accounts[1];  // Pirkėjas
+  const kitasPirkejas = accounts[2]; // Kitas pirkėjas
+  const Bilieto_ID = 0; // Bilieto ID
+  const Kitas_Bilieto_ID = 1; // Kitas bilieto ID
 
   let instance;
 
+  // Prieš pradedant testus, inicijuojama išmanioji sutartis
   before(async () => {
     instance = await Bilietai.deployed();
   });
 
+  // Tikrinama, ar sutarties savininkas buvo nustatytas tinkamai
   it('Savininkas yra nustatytas tinkamai', async () => {
     const sutartiesSavininkas = await instance.owner();
     assert.equal(sutartiesSavininkas, savininkas, 'Savininkas turi būti priskirtas tinkamai');
   });
 
+  // Tikrinama, ar galima pirkti bilietą su tinkama suma
   it('Leidžia pirkti bilietą su tinkama suma', async () => {
     const bilietas = await instance.bilietai(Bilieto_ID);
     await instance.pirktiBilietus(Bilieto_ID, {
@@ -257,6 +260,7 @@ contract('Bilietai', (accounts) => {
     );
   });
 
+  // Tikrinama, ar negalima pirkti jau parduoto bilieto
   it('Neleidžia pirkti jau parduoto bilieto', async () => {
     try {
       await instance.pirktiBilietus(Bilieto_ID, {
@@ -269,6 +273,7 @@ contract('Bilietai', (accounts) => {
     }
   });
 
+  // Tikrinama, ar galima grąžinti bilietą ir atlaisvinti jį
   it('Grąžina bilietą ir atlaisvina jį pirkimui', async () => {
     const bilietas = await instance.bilietai(Bilieto_ID);
     await instance.grazintiBilietas(Bilieto_ID, { from: pirkejas });
@@ -280,6 +285,7 @@ contract('Bilietai', (accounts) => {
     );
   });
 
+  // Tikrinama, ar atlaisvintą bilietą galima vėl nusipirkti
   it('Leidžia pirkti atlaisvintą bilietą', async () => {
     const bilietas = await instance.bilietai(Bilieto_ID);
     await instance.pirktiBilietus(Bilieto_ID, {
@@ -294,6 +300,7 @@ contract('Bilietai', (accounts) => {
     );
   });
 
+  // Tikrinama, ar tinkamai taikoma ankstyvo pirkimo nuolaida
   it('Tinkamai taiko ankstyvo pirkimo nuolaidą', async () => {
     const bilietas = await instance.bilietai(Kitas_Bilieto_ID);
     const pradineKaina = bilietas.kaina;
@@ -313,6 +320,7 @@ contract('Bilietai', (accounts) => {
     );
   });
 
+  // Tikrinama, ar negalima pirkti bilieto už mažesnę sumą nei reikalinga
   it('Neleidžia pirkti bilieto už mažesnę nei reikalingą sumą', async () => {
     try {
       await instance.pirktiBilietus(2, {
@@ -325,6 +333,7 @@ contract('Bilietai', (accounts) => {
     }
   });
 
+  // Tikrinama pradinė bilieto būsena
   it('Tikrina pradinį bilieto būseną', async () => {
     const naujasBilietas = await instance.bilietai(3);
     assert.equal(
@@ -339,6 +348,7 @@ contract('Bilietai', (accounts) => {
     );
   });
 
+  // Tikrinama, ar negalima grąžinti bilieto, kuris nepriklauso vartotojui
   it('Neleidžia grąžinti bilieto, kuris nepriklauso vartotojui', async () => {
     try {
       await instance.grazintiBilietas(Bilieto_ID, { from: pirkejas });
